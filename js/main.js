@@ -1,6 +1,6 @@
 'use strict';
 
-// Config de la balise canvas
+
 function getCanvas(id) {
   function CanvasFactory() {
     this.style = {
@@ -59,7 +59,7 @@ function getSnake(canvas) {
 
   function SnakeFactory() {
     this.params = {
-      speed: 1
+      speed: 3
     };
     this.style = {
       height: 10,
@@ -98,57 +98,89 @@ function getGpu(canvas, snake) {
       this.ctx.fillStyle = snake.style.color;
       this.ctx.fillRect(snake.position.x, snake.position.y, snake.style.width, snake.style.height);
     };
+    this.clearSnake = function () {
+      this.ctx.clearRect(snake.position.x, snake.position.y, snake.style.width, snake.style.height);
+    };
   }
   return new GpuFactory();
 }
 
-// gestion keyboard
-function getCommand() {
-  function CommandFactory() {
-    this.left = {
-      keyCode: 37
+/**
+ * Gestion du keyboard pour assurer le fluidité de l animation, lance le manager de l animation
+ * @returns {KeyboardManagerFactory}
+ */
+function getKeyboardManager(animationManager) {
+  function KeyboardManagerFactory() {
+    this.firstKeydown = true;
+    this.mapping = {37: 'left', 38: 'top', 39: 'right', 40: 'down'};
+    this.setKeydown = function (keyCode) {
+      if (this.mapping[keyCode]) {
+        if (this.firstKeydown === true) {
+          animationManager.run(this.mapping[keyCode]);
+          // => lance l animation
+          this.firstKeydown = false;// je bloque la recursion du clavier
+        }
+      }
     };
-    this.up = {
-      keyCode: 38
-    };
-    this.right = {
-      keyCode: 39
-    };
-    this.right = {
-      keyCode: 40
+    this.setKeyup = function (keycode) {
+      if (this.mapping[keycode]) {
+        animationManager.stop();
+        this.firstKeydown = true;
+      }
     };
   }
 
-  return new CommandFactory();
+  return new KeyboardManagerFactory();
+}
+/**
+ *
+ * @param gpu
+ * @param snake
+ * @returns {AnimationManagerFactory}
+ */
+function getAnimationManager(gpu, snake) {
+  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+  var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
+  function builderSnakeMove(direction, animationManager) {
+    return function snakeMove() {
+      gpu.clearSnake();
+      snake.move[direction]();
+      gpu.drawSnake();
+      var lastID = window.requestAnimationFrame(snakeMove);
+      animationManager.lastAnimationFrame = lastID;
+    };
+  }
+
+  function AnimationManagerFactory() {
+    this.lastAnimationFrame = 0;
+    this.run = function (direction) {
+      this.lastAnimationFrame = window.requestAnimationFrame(builderSnakeMove(direction, this));
+    };
+    this.stop = function () {
+      cancelAnimationFrame(this.lastAnimationFrame);
+    };
+
+  }
+  return new AnimationManagerFactory();
 }
 
-function listenerKeyboard(snake, gpu) {
+/**
+ * Listener sur le keydown et keyup du clavier
+ * @param keyboardManager
+ */
+function listenerKeyboard(keyboardManager) {
   window.addEventListener('keydown', function (e) {
+  console.log(e.keyCode);
 
-    if (e.keyCode === 37) {
-      snake.move.left();
-      gpu.drawSnake();
-    }
-
-    if (e.keyCode === 38) {
-      snake.move.top();
-      gpu.drawSnake();
-    }
-
-    if (e.keyCode === 39) {
-      snake.move.right();
-      gpu.drawSnake();
-    }
-
-    if (e.keyCode === 40) {
-      snake.move.down();
-      gpu.drawSnake();
-    }
+      keyboardManager.setKeydown(e.keyCode);
 
   });
 
   window.addEventListener('keyup', function (e) {
-    //console.log('up ' + e.keyCode);
+    keyboardManager.setKeyup(e.keyCode);
   });
 }
 
@@ -161,10 +193,11 @@ window.addEventListener('load', function () {
   var gpu = getGpu(canvas, snake);
   gpu.drawSnake();
 
+  var animationManager = getAnimationManager(gpu, snake);
   // console.log(gpu);
-  var command = getCommand();
+  var keyboardManager = getKeyboardManager(animationManager);
   // console.log(command);
 
-  //console.log(snake.position);
-  listenerKeyboard(snake, gpu);
+  listenerKeyboard(keyboardManager);
+
 });

@@ -1,6 +1,10 @@
 'use strict';
 
-
+/**
+ * Get a object about the canvas html
+ * @param {string} id - The id of the canvas element
+ * @returns {CanvasFactory} Return canvas object
+ */
 function getCanvas(id) {
   function CanvasFactory() {
     this.style = {
@@ -16,15 +20,19 @@ function getCanvas(id) {
   return new CanvasFactory();
 }
 
-// gestion du snake
+/**
+ * Get a snake object
+ * @param {CanvasFactory}   canvas - A canvas object
+ * @returns {SnakeFactory}  Return a snake object
+ */
 function getSnake(canvas) {
   var canvasXmax = canvas.style.width;
   var canvasYmax = canvas.style.height;
 
   /**
    * Get a random number with a maximun an a minimun
-   * @param   {Number} max      The max number
-   * @param   {Number} min      The min number
+   * @param   {Number} [max]      The max number
+   * @param   {Number} [min]      The min number
    * @returns {Number} integer  Return a integer
    */
   function getRandomNumber(max, min = 0) {
@@ -33,7 +41,7 @@ function getSnake(canvas) {
   }
 
   /**
-   * Calculate the position IN the canvas
+   * Get a random position between two number
    * @param   {Number}  canvasSize  Can be height or width.
    * @param   {Number}  snakeSize   Height or width of the snake style.
    * @returns {Number}              Return a integer
@@ -43,6 +51,11 @@ function getSnake(canvas) {
     return getRandomNumber(max);
   }
 
+  /**
+   * Build a function for add px to the snake
+   * @param {number}      [position] - can be x or y coordonne
+   * @returns {Function}  Return a function
+   */
   function addPx(position) {
     var snake = this;
     return function () {
@@ -50,6 +63,11 @@ function getSnake(canvas) {
     };
   }
 
+  /**
+   * Build a function for remove px to the snake
+   * @param {number}      [position] - can be x or y coordonne
+   * @returns {Function}  Return a function
+   */
   function rmvPx(position) {
     var snake = this;
     return function () {
@@ -57,6 +75,10 @@ function getSnake(canvas) {
     };
   }
 
+  /**
+   * The snake factory
+   * @constructor
+   */
   function SnakeFactory() {
     this.params = {
       speed: 3
@@ -90,7 +112,12 @@ function getSnake(canvas) {
   return snake;
 }
 
-// gestion de l affichage
+/**
+ *  Gpu object is used to draw in the canvas
+ * @param {CanvasFactory} [canvas] - A Canvas object
+ * @param {SnakeFactory}  [snake] - A Snake object
+ * @returns {GpuFactory} Return a gpu object
+ */
 function getGpu(canvas, snake) {
   function GpuFactory() {
     this.ctx = canvas.ctx;
@@ -106,8 +133,9 @@ function getGpu(canvas, snake) {
 }
 
 /**
- * Gestion du keyboard pour assurer le fluidité de l animation, lance le manager de l animation
- * @returns {KeyboardManagerFactory}
+ * Object used to manage keyboar and animation
+ * @param {AnimationManagerFactory}   [animationManager] - AnimationManager object
+ * @returns {KeyboardManagerFactory}  Returne a KeyboardManager object
  */
 function getKeyboardManager(animationManager) {
   function KeyboardManagerFactory() {
@@ -132,11 +160,12 @@ function getKeyboardManager(animationManager) {
 
   return new KeyboardManagerFactory();
 }
+
 /**
- *
- * @param gpu
- * @param snake
- * @returns {AnimationManagerFactory}
+ * Use to manage animation in terms of keyboard
+ * @param {GpuFactory}                [gpu] - a gpu object
+ * @param {SnakeFactory}              [snake] - a snake object
+ * @returns {AnimationManagerFactory} Return a AnimationManager
  */
 function getAnimationManager(gpu, snake) {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
@@ -149,8 +178,7 @@ function getAnimationManager(gpu, snake) {
       gpu.clearSnake();
       snake.move[direction]();
       gpu.drawSnake();
-      var lastID = window.requestAnimationFrame(snakeMove);
-      animationManager.lastAnimationFrame = lastID;
+      animationManager.lastAnimationFrame = window.requestAnimationFrame(snakeMove);
     };
   }
 
@@ -162,21 +190,18 @@ function getAnimationManager(gpu, snake) {
     this.stop = function () {
       cancelAnimationFrame(this.lastAnimationFrame);
     };
-
   }
   return new AnimationManagerFactory();
 }
 
 /**
- * Listener sur le keydown et keyup du clavier
- * @param keyboardManager
+ * Listening the keyboard, and lunch action
+ * @param {KeyboardManagerFactory} [keyboardManager] - a KeyboardManager
+ * @return {void}
  */
 function listenerKeyboard(keyboardManager) {
   window.addEventListener('keydown', function (e) {
-  console.log(e.keyCode);
-
-      keyboardManager.setKeydown(e.keyCode);
-
+    keyboardManager.setKeydown(e.keyCode);
   });
 
   window.addEventListener('keyup', function (e) {
@@ -184,7 +209,9 @@ function listenerKeyboard(keyboardManager) {
   });
 }
 
-
+/**
+ * The beginning ...
+ */
 window.addEventListener('load', function () {
   var canvas = getCanvas('gamvas');
   // console.log(canvas);
@@ -199,5 +226,4 @@ window.addEventListener('load', function () {
   // console.log(command);
 
   listenerKeyboard(keyboardManager);
-
 });

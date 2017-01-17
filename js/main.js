@@ -21,6 +21,36 @@ function getCanvas(id) {
 }
 
 /**
+ * Get a random number with a maximun an a minimun
+ * @param   {Number} [max]      The max number
+ * @param   {Number} [min]      The min number
+ * @returns {Number} integer  Return a integer
+ */
+function getRandomNumber(max, min = 0) {
+  var num = Math.random() * (max - min);
+  return parseInt(num, 10);
+}
+
+function getApple(canvas) {
+  function AppleFactory() {
+    this.style = {
+      height: 10,
+      width: 10,
+      color: 'green'
+    };
+    this.position = {
+      x: '',
+      y: ''
+    };
+  }
+  var apple =  new AppleFactory();
+  apple.position.x = getRandomNumber(canvas.style.width);
+  apple.position.y = getRandomNumber(canvas.style.height);
+
+  return apple;
+}
+
+/**
  * Get a snake object
  * @param {CanvasFactory}   canvas - A canvas object
  * @returns {SnakeFactory}  Return a snake object
@@ -28,17 +58,6 @@ function getCanvas(id) {
 function getSnake(canvas) {
   var canvasXmax = canvas.style.width;
   var canvasYmax = canvas.style.height;
-
-  /**
-   * Get a random number with a maximun an a minimun
-   * @param   {Number} [max]      The max number
-   * @param   {Number} [min]      The min number
-   * @returns {Number} integer  Return a integer
-   */
-  function getRandomNumber(max, min = 0) {
-    var num = Math.random() * (max - min);
-    return parseInt(num, 10);
-  }
 
   /**
    * Get a random position between two number
@@ -116,9 +135,10 @@ function getSnake(canvas) {
  *  Gpu object is used to draw in the canvas
  * @param {CanvasFactory} [canvas] - A Canvas object
  * @param {SnakeFactory}  [snake] - A Snake object
+ * @param {SnakeFactory}  [apple] - A Apple object
  * @returns {GpuFactory} Return a gpu object
  */
-function getGpu(canvas, snake) {
+function getGpu(canvas, snake, apple) {
   function GpuFactory() {
     this.ctx = canvas.ctx;
     this.drawSnake = function () {
@@ -127,6 +147,13 @@ function getGpu(canvas, snake) {
     };
     this.clearSnake = function () {
       this.ctx.clearRect(snake.position.x, snake.position.y, snake.style.width, snake.style.height);
+    };
+    this.drawApple = function () {
+      this.ctx.fillStyle = apple.style.color;
+      this.ctx.fillRect(apple.position.x, apple.position.y, apple.style.width, apple.style.height);
+    };
+    this.clearApple = function () {
+      this.ctx.clearRect(apple.position.x, apple.position.y, apple.style.width, apple.style.height);
     };
   }
   return new GpuFactory();
@@ -192,6 +219,7 @@ function getAnimationManager(gpu, snake) {
   function AnimationManagerFactory() {
     this.lastAnimationFrame = 0;
     this.run = function (direction) {
+      // -> gestion des collision avant refresh
       this.lastAnimationFrame = window.requestAnimationFrame(builderSnakeMove(direction, this));
     };
     this.stop = function () {
@@ -223,9 +251,11 @@ window.addEventListener('load', function () {
   var canvas = getCanvas('gamvas');
   // console.log(canvas);
   var snake = getSnake(canvas);
+  var apple = getApple(canvas);
   // console.log(snake);
-  var gpu = getGpu(canvas, snake);
+  var gpu = getGpu(canvas, snake, apple);
   gpu.drawSnake();
+  gpu.drawApple();
 
   var animationManager = getAnimationManager(gpu, snake);
   // console.log(gpu);

@@ -44,8 +44,8 @@ function getApple(canvas) {
     };
   }
   var apple =  new AppleFactory();
-  apple.position.x = getRandomNumber(canvas.style.width);
-  apple.position.y = getRandomNumber(canvas.style.height);
+  apple.position.x = getRandomNumber((canvas.style.width  - apple.style.height));
+  apple.position.y = getRandomNumber((canvas.style.height - apple.style.width));
 
   return apple;
 }
@@ -220,6 +220,8 @@ function getAnimationManager(gpu, snake) {
     this.lastAnimationFrame = 0;
     this.run = function (direction) {
       // -> gestion des collision avant refresh
+
+      //collisionEngine
       this.lastAnimationFrame = window.requestAnimationFrame(builderSnakeMove(direction, this));
     };
     this.stop = function () {

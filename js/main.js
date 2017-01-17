@@ -46,7 +46,7 @@ function getApple(canvas) {
   var apple =  new AppleFactory();
   apple.position.x = getRandomNumber((canvas.style.width  - apple.style.height));
   apple.position.y = getRandomNumber((canvas.style.height - apple.style.width));
-
+  // @todo: newPosition()
   return apple;
 }
 
@@ -213,6 +213,14 @@ function getAnimationManager(gpu, snake) {
       snake.move[direction]();
       gpu.drawSnake();
       animationManager.lastAnimationFrame = window.requestAnimationFrame(snakeMove);
+    };
+  }
+
+  function builderApplePop() {
+    return function () {
+      gpu.clearApple();
+      apple.newPosition();
+      gpu.drawApple();
     };
   }
 

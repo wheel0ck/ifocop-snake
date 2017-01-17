@@ -140,13 +140,20 @@ function getGpu(canvas, snake) {
 function getKeyboardManager(animationManager) {
   function KeyboardManagerFactory() {
     this.firstKeydown = true;
+    this.lastKeyCode = '';
     this.mapping = {37: 'left', 38: 'top', 39: 'right', 40: 'down'};
     this.setKeydown = function (keyCode) {
       if (this.mapping[keyCode]) {
         if (this.firstKeydown === true) {
           animationManager.run(this.mapping[keyCode]);
-          // => lance l animation
-          this.firstKeydown = false;// je bloque la recursion du clavier
+          // escape the keyboard recursion
+          this.firstKeydown = false;
+          this.lastKeyCode = keyCode;
+        }
+        // manage two keydown in the same time
+        if (this.firstKeydown === false && this.lastKeyCode !== keyCode) {
+          animationManager.stop();
+          animationManager.run(this.mapping[keyCode]);
         }
       }
     };

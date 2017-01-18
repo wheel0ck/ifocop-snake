@@ -195,6 +195,20 @@ function getKeyboardManager(animationManager) {
   return new KeyboardManagerFactory();
 }
 
+function getCollisionEngin() {
+  function CollisionFactory () {
+    this.hasCollision = function (rect1, rect2) {
+      if (rect1.x < rect2.x + rect2.width && rect1.x + rect1.width > rect2.x && rect1.y < rect2.y + rect2.height &&
+        rect1.height + rect1.y > rect2.y) {
+        return true;
+      }
+      return false;
+    };
+
+
+  }
+}
+
 /**
  * Use to manage animation in terms of keyboard
  * @param {GpuFactory}                [gpu] - a gpu object
@@ -208,18 +222,10 @@ function getAnimationManager(gpu, snake) {
   var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
   function builderSnakeMove(direction) {
-    return function snakeMove() {
+    return function () {
       gpu.clearSnake();
       snake.move[direction]();
       gpu.drawSnake();
-    };
-  }
-
-  function builderApplePop() {
-    return function () {
-      gpu.clearApple();
-      apple.newPosition();
-      gpu.drawApple();
     };
   }
 
@@ -238,6 +244,7 @@ function getAnimationManager(gpu, snake) {
     this.run = function (direction) {
       var snakeMove = builderSnakeMove(direction);
       this.bag.push(snakeMove);
+
       this.lastAnimationFrame = window.requestAnimationFrame(this.catling());
     };
     this.stop = function () {

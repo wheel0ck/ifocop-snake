@@ -11,6 +11,10 @@ function getCanvas(id) {
       height: document.getElementById(id).getAttribute('height'),
       width: document.getElementById(id).getAttribute('width')
     };
+    this.position = {
+      x: 0,
+      y: 0
+    };
 
     this.ctx = (function () {
       let element = document.getElementById('gamvas');
@@ -196,17 +200,18 @@ function getKeyboardManager(animationManager) {
 }
 
 function getCollisionEngin() {
-  function CollisionFactory () {
+  function CollisionFactory() {
     this.hasCollision = function (rect1, rect2) {
-      if (rect1.x < rect2.x + rect2.width && rect1.x + rect1.width > rect2.x && rect1.y < rect2.y + rect2.height &&
-        rect1.height + rect1.y > rect2.y) {
+
+      if (rect1.position.x < rect2.position.x + rect2.style.width && rect1.position.x + rect1.style.width > rect2.position.x &&
+        rect1.position.y < rect2.position.y + rect2.style.height && rect1.style.height + rect1.position.y > rect2.position.y) {
         return true;
       }
       return false;
     };
-
-
   }
+
+  return new CollisionFactory();
 }
 
 /**
@@ -283,7 +288,10 @@ window.addEventListener('load', function () {
   gpu.drawSnake();
   gpu.drawApple();
 
-  var animationManager = getAnimationManager(gpu, snake);
+  var collision = getCollisionEngin();
+  // console.log(collision);
+
+  var animationManager = getAnimationManager(gpu, snake, collision, canvas);
   // console.log(gpu);
   var keyboardManager = getKeyboardManager(animationManager);
   // console.log(command);

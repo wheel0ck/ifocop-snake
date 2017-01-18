@@ -207,12 +207,11 @@ function getAnimationManager(gpu, snake) {
 
   var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
-  function builderSnakeMove(direction, animationManager) {
+  function builderSnakeMove(direction) {
     return function snakeMove() {
       gpu.clearSnake();
       snake.move[direction]();
       gpu.drawSnake();
-      animationManager.lastAnimationFrame = window.requestAnimationFrame(snakeMove);
     };
   }
 
@@ -226,14 +225,24 @@ function getAnimationManager(gpu, snake) {
 
   function AnimationManagerFactory() {
     this.lastAnimationFrame = 0;
+    this.bag = [];
+    this.catling = function () {
+      var animationManager = this;
+      return function catling() {
+        animationManager.bag.forEach(function (element) {
+          element();
+        });
+        animationManager.lastAnimationFrame = window.requestAnimationFrame(catling);
+      };
+    };
     this.run = function (direction) {
-      // -> gestion des collision avant refresh
-
-      //collisionEngine
-      this.lastAnimationFrame = window.requestAnimationFrame(builderSnakeMove(direction, this));
+      var snakeMove = builderSnakeMove(direction);
+      this.bag.push(snakeMove);
+      this.lastAnimationFrame = window.requestAnimationFrame(this.catling());
     };
     this.stop = function () {
       cancelAnimationFrame(this.lastAnimationFrame);
+      this.bag = [];
     };
   }
   return new AnimationManagerFactory();

@@ -126,6 +126,10 @@ function getSnake(canvas) {
       right: '',
       down: ''
     };
+    this.newPosition = function() {
+      this.position.x = getSnakePositionRandom(canvasXmax, this.style.width);
+      this.position.y = getSnakePositionRandom(canvasYmax, this.style.height);
+    };
   }
 
   var snake = new SnakeFactory();
@@ -213,6 +217,14 @@ function getCollisionEngin() {
       }
       return false;
     };
+
+    this.inCanvas = function (snake, canvas) {
+      if (snake.position.x > canvas.position.x && snake.position.x + snake.style.width < canvas.style.width &&
+        snake.position.y > canvas.position.y && snake.position.y + snake.style.height < canvas.style.height ) {
+        return true;
+      }
+      return false;
+    };
   }
 
   return new CollisionFactory();
@@ -256,12 +268,17 @@ function getAnimationManager(gpu, snake, collision, canvas, apple) {
       return function () {
         gpu.clearSnake();
         snake.move[direction]();
-        var snakeIncanvas = !collision.hasCollision(snake, canvas);
+
         if (collision.hasCollision(snake, apple)) {
           console.log('snake+1');
           gpu.clearApple();
           apple.newPosition();
           gpu.drawApple();
+        }
+
+        if (!collision.inCanvas(snake, canvas)){
+          console.log('fin de la game');
+          snake.newPosition();
         }
         gpu.drawSnake();
       };

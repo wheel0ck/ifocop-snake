@@ -206,9 +206,16 @@ function getKeyboardManager(animationManager) {
 function getCollisionEngin() {
   function CollisionFactory() {
     this.hasCollision = function (rect1, rect2) {
-
       if (rect1.position.x < rect2.position.x + rect2.style.width && rect1.position.x + rect1.style.width > rect2.position.x &&
         rect1.position.y < rect2.position.y + rect2.style.height && rect1.style.height + rect1.position.y > rect2.position.y) {
+        return true;
+      }
+      return false;
+    };
+    this.inCanvas = function (snake, canvas) {
+      if (snake.position.x > canvas.position.x && snake.position.x + snake.style.width < canvas.style.width
+      && snake.position.y > canvas.position.y && snake.position.y + snake.style.height < canvas.style.height){
+
         return true;
       }
       return false;
@@ -256,12 +263,15 @@ function getAnimationManager(gpu, snake, collision, canvas, apple) {
       return function () {
         gpu.clearSnake();
         snake.move[direction]();
-        var snakeIncanvas = !collision.hasCollision(snake, canvas);
         if (collision.hasCollision(snake, apple)) {
           console.log('snake+1');
           gpu.clearApple();
           apple.newPosition();
           gpu.drawApple();
+        }
+
+        if (!collision.inCanvas(snake, canvas)){
+          console.log('out');
         }
         gpu.drawSnake();
       };

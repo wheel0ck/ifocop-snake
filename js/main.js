@@ -288,6 +288,7 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, game) {
 }
 /**
  * Give a game object
+ * @param {string} [id]   Add the id of the html tag
  * @returns {GameFactory} Return a object game
  */
 function getGame(id) {
@@ -303,8 +304,40 @@ function getGame(id) {
     this.printScore = function () {
       this.dom.innerHTML = 'Score = ' + this.score;
     };
-  };
+  }
   return new GameFactory();
+}
+/**
+ * Give a timer object
+ * @param {string}          id Add the id of the html tag
+ * @returns {TimerFactory}  Return a Timer object
+ */
+function getTimer(id) {
+  function TimerFactory() {
+    this.params = { defaultSecond: 60};
+    this.second = this.params.defaultSecond;
+    this.dom = (function () {
+      return document.getElementById(id);
+    })();
+    this.printTime = function () {
+      this.dom.innerHTML = 'Timer = ' + this.second;
+    };
+    this.idSetInterval = Number();
+    this.run = function () {
+      this.idSetInterval = setInterval(function (timer) {
+        timer.second -= 1;
+        if (timer.second >= 0 ) {
+          timer.printTime();
+        } else {
+          timer.stop();
+        }
+      }, 1000, this);
+    };
+    this.stop = function () {
+      clearInterval(this.idSetInterval);
+    };
+  }
+  return new TimerFactory();
 }
 
 /**
@@ -329,7 +362,9 @@ window.addEventListener('load', function () {
 
   var game = getGame('score');
   game.printScore();
-  console.log(game);
+  var timer = getTimer('timer');
+  timer.printTime();
+  timer.run();
 
   var canvas = getCanvas('gamvas');
   // console.log(canvas);

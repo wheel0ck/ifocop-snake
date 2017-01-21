@@ -47,9 +47,9 @@ function getApple(canvas) {
       y: ''
     };
     this.newPosition = function () {
-        this.position.x = getRandomNumber((canvas.style.width  - this.style.height));
-        this.position.y = getRandomNumber((canvas.style.height - this.style.width));
-      };
+      this.position.x = getRandomNumber((canvas.style.width  - this.style.height));
+      this.position.y = getRandomNumber((canvas.style.height - this.style.width));
+    };
   }
   var apple =  new AppleFactory();
   apple.position.x = getRandomNumber((canvas.style.width  - apple.style.height));
@@ -129,7 +129,7 @@ function getSnake(canvas) {
     this.randomPosition = function () {
       this.position.x = getSnakePositionRandom(canvasXmax, snake.style.width);
       this.position.y = getSnakePositionRandom(canvasYmax, snake.style.height);
-    }
+    };
   }
 
   var snake = new SnakeFactory();
@@ -218,8 +218,7 @@ function getCollisionEngin() {
     };
     this.inCanvas = function (snake, canvas) {
       if (snake.position.x > canvas.position.x && snake.position.x + snake.style.width < canvas.style.width
-      && snake.position.y > canvas.position.y && snake.position.y + snake.style.height < canvas.style.height){
-
+      && snake.position.y > canvas.position.y && snake.position.y + snake.style.height < canvas.style.height) {
         return true;
       }
       return false;
@@ -236,7 +235,7 @@ function getCollisionEngin() {
  * @param {CollisionFactory}          [collision] - a object to compute the collision
  * @returns {AnimationManagerFactory} Return a AnimationManager
  */
-function getAnimationManager(gpu, snake, collision, canvas, apple) {
+function getAnimationManager(gpu, snake, collision, canvas, apple, game) {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
     window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
@@ -263,18 +262,18 @@ function getAnimationManager(gpu, snake, collision, canvas, apple) {
       cancelAnimationFrame(this.lastAnimationFrame);
       this.bag = [];
     };
-    this.builderSnakeMove = function(direction) {
+    this.builderSnakeMove = function (direction) {
       return function () {
         gpu.clearSnake();
         snake.move[direction]();
         if (collision.hasCollision(snake, apple)) {
-          console.log('snake+1');
+          game.addScore();
           gpu.clearApple();
           apple.newPosition();
           gpu.drawApple();
         }
 
-        if (!collision.inCanvas(snake, canvas)){
+        if (!collision.inCanvas(snake, canvas)) {
           console.log('out');
           snake.randomPosition();
           gpu.drawSnake();
@@ -285,6 +284,20 @@ function getAnimationManager(gpu, snake, collision, canvas, apple) {
     };
   }
   return new AnimationManagerFactory();
+}
+/**
+ * Give a game object
+ * @returns {GameFactory} Return a object game
+ */
+function getGame() {
+  function GameFactory() {
+    this.score = 0;
+    this.step = 1;
+    this.addScore = function () {
+      this.score = this.score + this.step;
+    };
+  };
+  return new GameFactory();
 }
 
 /**
@@ -306,6 +319,14 @@ function listenerKeyboard(keyboardManager) {
  * The beginning ...
  */
 window.addEventListener('load', function () {
+
+  /**
+   * @inheritDoc game.js
+   * @type {GameFactory}
+   */
+  var game = getGame();
+  console.log(game);
+
   var canvas = getCanvas('gamvas');
   // console.log(canvas);
   var snake = getSnake(canvas);
@@ -318,7 +339,7 @@ window.addEventListener('load', function () {
   var collision = getCollisionEngin();
   // console.log(collision);
 
-  var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple);
+  var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, game);
   // console.log(gpu);
   var keyboardManager = getKeyboardManager(animationManager);
   // console.log(command);

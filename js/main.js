@@ -268,6 +268,7 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, game) {
         snake.move[direction]();
         if (collision.hasCollision(snake, apple)) {
           game.addScore();
+          game.printScore();
           gpu.clearApple();
           apple.newPosition();
           gpu.drawApple();
@@ -289,12 +290,18 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, game) {
  * Give a game object
  * @returns {GameFactory} Return a object game
  */
-function getGame() {
+function getGame(id) {
   function GameFactory() {
     this.score = 0;
     this.step = 1;
     this.addScore = function () {
       this.score = this.score + this.step;
+    };
+    this.dom = (function () {
+      return document.getElementById(id);
+    })();
+    this.printScore = function () {
+      this.dom.innerHTML = 'Score = ' + this.score;
     };
   };
   return new GameFactory();
@@ -320,11 +327,8 @@ function listenerKeyboard(keyboardManager) {
  */
 window.addEventListener('load', function () {
 
-  /**
-   * @inheritDoc game.js
-   * @type {GameFactory}
-   */
-  var game = getGame();
+  var game = getGame('score');
+  game.printScore();
   console.log(game);
 
   var canvas = getCanvas('gamvas');

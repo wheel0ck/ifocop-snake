@@ -126,6 +126,10 @@ function getSnake(canvas) {
       right: '',
       down: ''
     };
+    this.randomPosition = function () {
+      this.position.x = getSnakePositionRandom(canvasXmax, snake.style.width);
+      this.position.y = getSnakePositionRandom(canvasYmax, snake.style.height);
+    }
   }
 
   var snake = new SnakeFactory();
@@ -272,8 +276,11 @@ function getAnimationManager(gpu, snake, collision, canvas, apple) {
 
         if (!collision.inCanvas(snake, canvas)){
           console.log('out');
+          snake.randomPosition();
+          gpu.drawSnake();
+        } else {
+          gpu.drawSnake();
         }
-        gpu.drawSnake();
       };
     };
   }

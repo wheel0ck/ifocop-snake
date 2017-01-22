@@ -183,27 +183,18 @@ function getKeyboardManager(animationManager) {
     this.mapping = {37: 'left', 38: 'top', 39: 'right', 40: 'down'};
     this.setKeydown = function (keyCode) {
       if (this.mapping[keyCode]) {
-        if (this.firstKeydown === true) {
+        if (this.lastKeyCode === '' && this.firstKeydown) {
           animationManager.run(this.mapping[keyCode]);
-          // escape the keyboard recursion
-          this.firstKeydown = false;
           this.lastKeyCode = keyCode;
-        }
-        // manage two keydown in the same time
-        if (this.firstKeydown === false && this.lastKeyCode !== keyCode) {
+          this.firstKeydown = false;
+        } else {
           animationManager.stop();
           animationManager.run(this.mapping[keyCode]);
+          this.lastKeyCode = keyCode;
         }
-      }
-    };
-    this.setKeyup = function (keycode) {
-      if (this.mapping[keycode]) {
-        animationManager.stop();
-        this.firstKeydown = true;
       }
     };
   }
-
   return new KeyboardManagerFactory();
 }
 
@@ -328,7 +319,7 @@ function getScore(id) {
  */
 function getTimer(id) {
   function TimerFactory() {
-    this.params = { defaultSecond: 3};
+    this.params = { defaultSecond: 60};
     this.second = this.params.defaultSecond;
     this.isPlaying = true;
     this.dom = (function () {
@@ -372,10 +363,6 @@ function listenerKeyboard(keyboardManager) {
   window.addEventListener('keydown', function (e) {
     keyboardManager.setKeydown(e.keyCode);
   });
-
-  window.addEventListener('keyup', function (e) {
-    keyboardManager.setKeyup(e.keyCode);
-  });
 }
 
 /**
@@ -407,6 +394,7 @@ window.addEventListener('load', function () {
   // console.log(command);
 
   listenerKeyboard(keyboardManager);
+
   var button = document.getElementById('reload');
   button.addEventListener('click', function () {
     console.log('reload');

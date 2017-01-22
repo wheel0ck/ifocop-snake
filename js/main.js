@@ -119,7 +119,8 @@ function getSnake(canvas) {
       x: '',
       y: ''
     };
-    this.tail = [];
+    this.positionHistory = [];
+    this.eat = 0;
     this.move = {
       left: '',
       top: '',
@@ -129,6 +130,32 @@ function getSnake(canvas) {
     this.randomPosition = function () {
       this.position.x = getSnakePositionRandom(canvasXmax, snake.style.width);
       this.position.y = getSnakePositionRandom(canvasYmax, snake.style.height);
+    };
+    // @todo: (this.position) marche pas ?!
+    this.recordPosition = function (x, y) {
+      this.positionHistory.unshift({x: x, y: y});
+    };
+    this.getTail = function () {
+      var tail = [];
+      var start = 10;
+      for (var i = start; i < this.eat; i += start) {
+        tail.push(this.positionHistory[i]);
+      }
+      if(this.eat == 2){
+        console.log(tail);
+        alert();
+
+      }
+
+      return tail;
+
+    };
+    this.setEat = function () {
+      this.eat += 1;
+    };
+    this.reload = function () {
+      this.positionHistory = [];
+      this.eat = 0;
     };
   }
 
@@ -166,6 +193,15 @@ function getGpu(canvas, snake, apple) {
     };
     this.clearApple = function () {
       this.ctx.clearRect(apple.position.x, apple.position.y, apple.style.width, apple.style.height);
+    };
+    this.drawSnakeTail = function () {
+      var snakeTail = snake.getTail();
+      for (var i = 0; i < snakeTail.length; i++) {
+        var position = snakeTail[i];
+        this.ctx.fillStyle = snake.style.color;
+        this.ctx.fillRect(position.x, position.y, snake.style.width, snake.style.height);
+      }
+
     };
   }
   return new GpuFactory();
@@ -264,9 +300,11 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
 
         if (score.isPlaying && timer.isPlaying) {
           snake.move[direction]();
+          snake.recordPosition(snake.position.x, snake.position.y);
         }
 
         if (collision.hasCollision(snake, apple)) {
+          snake.setEat();
           score.addScore();
           score.printScore();
           gpu.clearApple();
@@ -280,8 +318,10 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
           score.isPlaying = false;
           snake.randomPosition();
           gpu.drawSnake();
+          gpu.drawSnakeTail();
         } else {
           gpu.drawSnake();
+          gpu.drawSnakeTail();
         }
       };
     };
@@ -374,7 +414,6 @@ function listenerKeyboard(keyboardManager) {
  * The beginning ...
  */
 window.addEventListener('load', function () {
-
   var score = getScore('score');
   score.printScore();
   var timer = getTimer('timer');
@@ -403,6 +442,7 @@ window.addEventListener('load', function () {
   var button = document.getElementById('reload');
   button.addEventListener('click', function () {
     console.log('reload');
+    snake.reload();
     score.reload();
     timer.reload();
     keyboardManager.reload();

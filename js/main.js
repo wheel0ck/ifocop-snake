@@ -194,6 +194,11 @@ function getKeyboardManager(animationManager) {
         }
       }
     };
+    this.reload = function () {
+      animationManager.stop();
+      this.lastKeyCode = '';
+      this.firstKeydown = true;
+    };
   }
   return new KeyboardManagerFactory();
 }
@@ -400,5 +405,6 @@ window.addEventListener('load', function () {
     console.log('reload');
     score.reload();
     timer.reload();
+    keyboardManager.reload();
   });
 });

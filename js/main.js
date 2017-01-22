@@ -306,13 +306,17 @@ function getScore(id) {
       if (this.isPlaying) {
         this.score = this.score + this.step;
       }
-
     };
     this.dom = (function () {
       return document.getElementById(id);
     })();
     this.printScore = function () {
       this.dom.innerHTML = 'Score = ' + this.score;
+    };
+    this.reload = function () {
+      this.score = 0;
+      this.isPlaying = true;
+      this.printScore();
     };
   }
   return new ScoreFactory();
@@ -348,6 +352,12 @@ function getTimer(id) {
     };
     this.stop = function () {
       clearInterval(this.idSetInterval);
+    };
+    this.reload = function () {
+      this.isPlaying = true;
+      this.second = this.params.defaultSecond;
+      this.printTime();
+      this.run();
     };
   }
   return new TimerFactory();
@@ -397,4 +407,10 @@ window.addEventListener('load', function () {
   // console.log(command);
 
   listenerKeyboard(keyboardManager);
+  var button = document.getElementById('reload');
+  button.addEventListener('click', function () {
+    console.log('reload');
+    score.reload();
+    timer.reload();
+  });
 });

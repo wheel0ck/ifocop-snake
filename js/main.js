@@ -337,9 +337,10 @@ function getTimer(id) {
     this.run = function () {
       this.idSetInterval = setInterval(function (timer) {
         timer.second -= 1;
-        if (timer.second >= 0 ) {
+        if (timer.second >= 1 ) {
           timer.printTime();
         } else {
+          timer.printTime();
           timer.stop();
           timer.isPlaying = false;
         }

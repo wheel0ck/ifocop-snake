@@ -235,7 +235,7 @@ function getCollisionEngin() {
  * @param {CollisionFactory}          [collision] - a object to compute the collision
  * @returns {AnimationManagerFactory} Return a AnimationManager
  */
-function getAnimationManager(gpu, snake, collision, canvas, apple, game) {
+function getAnimationManager(gpu, snake, collision, canvas, apple, game, timer) {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
     window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
@@ -265,7 +265,11 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, game) {
     this.builderSnakeMove = function (direction) {
       return function () {
         gpu.clearSnake();
-        snake.move[direction]();
+
+        if (game.isPlaying && timer.isPlaying) {
+          snake.move[direction]();
+        }
+
         if (collision.hasCollision(snake, apple)) {
           game.addScore();
           game.printScore();
@@ -276,6 +280,8 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, game) {
 
         if (!collision.inCanvas(snake, canvas)) {
           console.log('out');
+          timer.stop();
+          game.isPlaying = false;
           snake.randomPosition();
           gpu.drawSnake();
         } else {
@@ -295,8 +301,12 @@ function getGame(id) {
   function GameFactory() {
     this.score = 0;
     this.step = 1;
+    this.isPlaying = true;
     this.addScore = function () {
-      this.score = this.score + this.step;
+      if (this.isPlaying) {
+        this.score = this.score + this.step;
+      }
+
     };
     this.dom = (function () {
       return document.getElementById(id);
@@ -314,8 +324,9 @@ function getGame(id) {
  */
 function getTimer(id) {
   function TimerFactory() {
-    this.params = { defaultSecond: 60};
+    this.params = { defaultSecond: 10};
     this.second = this.params.defaultSecond;
+    this.isPlaying = true;
     this.dom = (function () {
       return document.getElementById(id);
     })();
@@ -330,6 +341,7 @@ function getTimer(id) {
           timer.printTime();
         } else {
           timer.stop();
+          timer.isPlaying = false;
         }
       }, 1000, this);
     };
@@ -378,7 +390,7 @@ window.addEventListener('load', function () {
   var collision = getCollisionEngin();
   // console.log(collision);
 
-  var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, game);
+  var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, game, timer);
   // console.log(gpu);
   var keyboardManager = getKeyboardManager(animationManager);
   // console.log(command);

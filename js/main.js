@@ -235,7 +235,7 @@ function getCollisionEngin() {
  * @param {CollisionFactory}          [collision] - a object to compute the collision
  * @returns {AnimationManagerFactory} Return a AnimationManager
  */
-function getAnimationManager(gpu, snake, collision, canvas, apple, game, timer) {
+function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer) {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
     window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
@@ -266,13 +266,13 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, game, timer) 
       return function () {
         gpu.clearSnake();
 
-        if (game.isPlaying && timer.isPlaying) {
+        if (score.isPlaying && timer.isPlaying) {
           snake.move[direction]();
         }
 
         if (collision.hasCollision(snake, apple)) {
-          game.addScore();
-          game.printScore();
+          score.addScore();
+          score.printScore();
           gpu.clearApple();
           apple.newPosition();
           gpu.drawApple();
@@ -281,7 +281,7 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, game, timer) 
         if (!collision.inCanvas(snake, canvas)) {
           console.log('out');
           timer.stop();
-          game.isPlaying = false;
+          score.isPlaying = false;
           snake.randomPosition();
           gpu.drawSnake();
         } else {
@@ -295,10 +295,10 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, game, timer) 
 /**
  * Give a game object
  * @param {string} [id]   Add the id of the html tag
- * @returns {GameFactory} Return a object game
+ * @returns {ScoreFactory} Return a object game
  */
-function getGame(id) {
-  function GameFactory() {
+function getScore(id) {
+  function ScoreFactory() {
     this.score = 0;
     this.step = 1;
     this.isPlaying = true;
@@ -315,7 +315,7 @@ function getGame(id) {
       this.dom.innerHTML = 'Score = ' + this.score;
     };
   }
-  return new GameFactory();
+  return new ScoreFactory();
 }
 /**
  * Give a timer object
@@ -324,7 +324,7 @@ function getGame(id) {
  */
 function getTimer(id) {
   function TimerFactory() {
-    this.params = { defaultSecond: 10};
+    this.params = { defaultSecond: 3};
     this.second = this.params.defaultSecond;
     this.isPlaying = true;
     this.dom = (function () {
@@ -372,8 +372,8 @@ function listenerKeyboard(keyboardManager) {
  */
 window.addEventListener('load', function () {
 
-  var game = getGame('score');
-  game.printScore();
+  var score = getScore('score');
+  score.printScore();
   var timer = getTimer('timer');
   timer.printTime();
   timer.run();
@@ -390,7 +390,7 @@ window.addEventListener('load', function () {
   var collision = getCollisionEngin();
   // console.log(collision);
 
-  var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, game, timer);
+  var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, score, timer);
   // console.log(gpu);
   var keyboardManager = getKeyboardManager(animationManager);
   // console.log(command);

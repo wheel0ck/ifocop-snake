@@ -47,9 +47,9 @@ function getApple(canvas) {
       y: ''
     };
     this.newPosition = function () {
-        this.position.x = getRandomNumber((canvas.style.width  - this.style.height));
-        this.position.y = getRandomNumber((canvas.style.height - this.style.width));
-      };
+      this.position.x = getRandomNumber((canvas.style.width  - this.style.height));
+      this.position.y = getRandomNumber((canvas.style.height - this.style.width));
+    };
   }
   var apple =  new AppleFactory();
   apple.position.x = getRandomNumber((canvas.style.width  - apple.style.height));
@@ -119,16 +119,42 @@ function getSnake(canvas) {
       x: '',
       y: ''
     };
-    this.tail = [];
+    this.positionHistory = [];
+    this.eat = 0;
     this.move = {
       left: '',
       top: '',
       right: '',
       down: ''
     };
-    this.newPosition = function() {
-      this.position.x = getSnakePositionRandom(canvasXmax, this.style.width);
-      this.position.y = getSnakePositionRandom(canvasYmax, this.style.height);
+    this.randomPosition = function () {
+      this.position.x = getSnakePositionRandom(canvasXmax, snake.style.width);
+      this.position.y = getSnakePositionRandom(canvasYmax, snake.style.height);
+    };
+    // @todo: (this.position) marche pas ?!
+    this.recordPosition = function (x, y) {
+      this.positionHistory.unshift({x: x, y: y});
+    };
+    this.getTail = function () {
+      var tail = [];
+      var start = 10;
+      for (var i = start; i < this.eat; i += start) {
+        tail.push(this.positionHistory[i]);
+      }
+      if(this.eat == 2){
+        console.log(tail);
+
+      }
+
+      return tail;
+
+    };
+    this.setEat = function () {
+      this.eat += 1;
+    };
+    this.reload = function () {
+      this.positionHistory = [];
+      this.eat = 0;
     };
   }
 
@@ -167,6 +193,15 @@ function getGpu(canvas, snake, apple) {
     this.clearApple = function () {
       this.ctx.clearRect(apple.position.x, apple.position.y, apple.style.width, apple.style.height);
     };
+    this.drawSnakeTail = function () {
+      var snakeTail = snake.getTail();
+      for (var i = 0; i < snakeTail.length; i++) {
+        var position = snakeTail[i];
+        this.ctx.fillStyle = snake.style.color;
+        this.ctx.fillRect(position.x, position.y, snake.style.width, snake.style.height);
+      }
+
+    };
   }
   return new GpuFactory();
 }
@@ -183,34 +218,29 @@ function getKeyboardManager(animationManager) {
     this.mapping = {37: 'left', 38: 'top', 39: 'right', 40: 'down'};
     this.setKeydown = function (keyCode) {
       if (this.mapping[keyCode]) {
-        if (this.firstKeydown === true) {
+        if (this.lastKeyCode === '' && this.firstKeydown) {
           animationManager.run(this.mapping[keyCode]);
-          // escape the keyboard recursion
-          this.firstKeydown = false;
           this.lastKeyCode = keyCode;
-        }
-        // manage two keydown in the same time
-        if (this.firstKeydown === false && this.lastKeyCode !== keyCode) {
+          this.firstKeydown = false;
+        } else {
           animationManager.stop();
           animationManager.run(this.mapping[keyCode]);
+          this.lastKeyCode = keyCode;
         }
       }
     };
-    this.setKeyup = function (keycode) {
-      if (this.mapping[keycode]) {
-        animationManager.stop();
-        this.firstKeydown = true;
-      }
+    this.reload = function () {
+      animationManager.stop();
+      this.lastKeyCode = '';
+      this.firstKeydown = true;
     };
   }
-
   return new KeyboardManagerFactory();
 }
 
 function getCollisionEngin() {
   function CollisionFactory() {
     this.hasCollision = function (rect1, rect2) {
-
       if (rect1.position.x < rect2.position.x + rect2.style.width && rect1.position.x + rect1.style.width > rect2.position.x &&
         rect1.position.y < rect2.position.y + rect2.style.height && rect1.style.height + rect1.position.y > rect2.position.y) {
         return true;
@@ -219,8 +249,9 @@ function getCollisionEngin() {
     };
 
     this.inCanvas = function (snake, canvas) {
-      if (snake.position.x > canvas.position.x && snake.position.x + snake.style.width < canvas.style.width &&
-        snake.position.y > canvas.position.y && snake.position.y + snake.style.height < canvas.style.height ) {
+      if (snake.position.x > canvas.position.x && snake.position.x + snake.style.width < canvas.style.width
+      && snake.position.y > canvas.position.y && snake.position.y + snake.style.height < canvas.style.height) {
+
         return true;
       }
       return false;
@@ -237,7 +268,7 @@ function getCollisionEngin() {
  * @param {CollisionFactory}          [collision] - a object to compute the collision
  * @returns {AnimationManagerFactory} Return a AnimationManager
  */
-function getAnimationManager(gpu, snake, collision, canvas, apple) {
+function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer) {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
     window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
@@ -264,27 +295,109 @@ function getAnimationManager(gpu, snake, collision, canvas, apple) {
       cancelAnimationFrame(this.lastAnimationFrame);
       this.bag = [];
     };
-    this.builderSnakeMove = function(direction) {
+    this.builderSnakeMove = function (direction) {
       return function () {
         gpu.clearSnake();
-        snake.move[direction]();
+
+        if (score.isPlaying && timer.isPlaying) {
+          snake.move[direction]();
+          snake.recordPosition(snake.position.x, snake.position.y);
+        }
 
         if (collision.hasCollision(snake, apple)) {
-          console.log('snake+1');
+          snake.setEat();
+          score.addScore();
+          score.printScore();
           gpu.clearApple();
           apple.newPosition();
           gpu.drawApple();
         }
 
-        if (!collision.inCanvas(snake, canvas)){
-          console.log('fin de la game');
-          snake.newPosition();
+        if (!collision.inCanvas(snake, canvas)) {
+          console.log('out');
+          timer.stop();
+          score.isPlaying = false;
+          snake.randomPosition();
+          gpu.drawSnake();
+          gpu.drawSnakeTail();
+        } else {
+          gpu.drawSnake();
+          gpu.drawSnakeTail();
         }
-        gpu.drawSnake();
       };
     };
   }
   return new AnimationManagerFactory();
+}
+/**
+ * Give a game object
+ * @param {string} [id]   Add the id of the html tag
+ * @returns {ScoreFactory} Return a object game
+ */
+function getScore(id) {
+  function ScoreFactory() {
+    this.score = 0;
+    this.step = 1;
+    this.isPlaying = true;
+    this.addScore = function () {
+      if (this.isPlaying) {
+        this.score = this.score + this.step;
+      }
+    };
+    this.dom = (function () {
+      return document.getElementById(id);
+    })();
+    this.printScore = function () {
+      this.dom.innerHTML = 'Score = ' + this.score;
+    };
+    this.reload = function () {
+      this.score = 0;
+      this.isPlaying = true;
+      this.printScore();
+    };
+  }
+  return new ScoreFactory();
+}
+/**
+ * Give a timer object
+ * @param {string}          id Add the id of the html tag
+ * @returns {TimerFactory}  Return a Timer object
+ */
+function getTimer(id) {
+  function TimerFactory() {
+    this.params = { defaultSecond: 60};
+    this.second = this.params.defaultSecond;
+    this.isPlaying = true;
+    this.dom = (function () {
+      return document.getElementById(id);
+    })();
+    this.printTime = function () {
+      this.dom.innerHTML = 'Timer = ' + this.second;
+    };
+    this.idSetInterval = Number();
+    this.run = function () {
+      this.idSetInterval = setInterval(function (timer) {
+        timer.second -= 1;
+        if (timer.second >= 1 ) {
+          timer.printTime();
+        } else {
+          timer.printTime();
+          timer.stop();
+          timer.isPlaying = false;
+        }
+      }, 1000, this);
+    };
+    this.stop = function () {
+      clearInterval(this.idSetInterval);
+    };
+    this.reload = function () {
+      this.isPlaying = true;
+      this.second = this.params.defaultSecond;
+      this.printTime();
+      this.run();
+    };
+  }
+  return new TimerFactory();
 }
 
 /**
@@ -296,16 +409,18 @@ function listenerKeyboard(keyboardManager) {
   window.addEventListener('keydown', function (e) {
     keyboardManager.setKeydown(e.keyCode);
   });
-
-  window.addEventListener('keyup', function (e) {
-    keyboardManager.setKeyup(e.keyCode);
-  });
 }
 
 /**
  * The beginning ...
  */
 window.addEventListener('load', function () {
+  var score = getScore('score');
+  score.printScore();
+  var timer = getTimer('timer');
+  timer.printTime();
+  timer.run();
+
   var canvas = getCanvas('gamvas');
   // console.log(canvas);
   var snake = getSnake(canvas);
@@ -318,10 +433,19 @@ window.addEventListener('load', function () {
   var collision = getCollisionEngin();
   // console.log(collision);
 
-  var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple);
+  var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, score, timer);
   // console.log(gpu);
   var keyboardManager = getKeyboardManager(animationManager);
   // console.log(command);
 
   listenerKeyboard(keyboardManager);
+
+  var button = document.getElementById('reload');
+  button.addEventListener('click', function () {
+    console.log('reload');
+    snake.reload();
+    score.reload();
+    timer.reload();
+    keyboardManager.reload();
+  });
 });

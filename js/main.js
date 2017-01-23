@@ -137,17 +137,13 @@ function getSnake(canvas) {
     };
     this.getTail = function () {
       var tail = [];
-      var start = 10;
-      for (var i = start; i < this.eat; i += start) {
-        tail.push(this.positionHistory[i]);
+      var step = 4;
+      var j = step;
+      for (var i = 0; i < this.eat; i++) {
+        tail.push(this.positionHistory[j]);
+        j += step;
       }
-      if(this.eat == 2){
-        console.log(tail);
-
-      }
-
       return tail;
-
     };
     this.setEat = function () {
       this.eat += 1;
@@ -200,7 +196,13 @@ function getGpu(canvas, snake, apple) {
         this.ctx.fillStyle = snake.style.color;
         this.ctx.fillRect(position.x, position.y, snake.style.width, snake.style.height);
       }
-
+    };
+    this.clearSnakeTail = function () {
+      var snakeTail = snake.getTail();
+      for (var i = 0; i < snakeTail.length; i++) {
+        var position = snakeTail[i];
+        this.ctx.clearRect(position.x, position.y, snake.style.width, snake.style.height);
+      }
     };
   }
   return new GpuFactory();
@@ -298,6 +300,7 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
     this.builderSnakeMove = function (direction) {
       return function () {
         gpu.clearSnake();
+        gpu.clearSnakeTail();
 
         if (score.isPlaying && timer.isPlaying) {
           snake.move[direction]();

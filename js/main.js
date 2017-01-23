@@ -146,6 +146,8 @@ function getSnake(canvas) {
         tail.push(this.positionHistory[j]);
         j += step;
       }
+      // clean history
+      this.positionHistory.splice(j);
       return tail;
     };
     this.setEat = function () {
@@ -320,8 +322,31 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
           gpu.drawApple();
         }
 
+        //snake se mort la queue
+        if (snake.eat > 1) {
+
+          var transformerTail = {
+            style: {
+              width: snake.style.width,
+              height: snake.style.height
+            }
+          };
+
+          var tail = snake.getTail();
+
+          for (var i = 1; i < tail.length; i++) {
+            transformerTail.position = tail[i];
+            if (collision.hasCollision(snake, transformerTail)) {
+              console.log('touch');
+              score.isPlaying = false;
+              timer.stop();
+            };
+          }
+        }
+
         if (!collision.inCanvas(snake, canvas)) {
           console.log('out');
+
           timer.stop();
           score.isPlaying = false;
           gpu.drawSnake();

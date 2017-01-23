@@ -50,6 +50,9 @@ function getApple(canvas) {
       this.position.x = getRandomNumber((canvas.style.width  - this.style.height));
       this.position.y = getRandomNumber((canvas.style.height - this.style.width));
     };
+    this.reload =  function () {
+      this.newPosition();
+    };
   }
   var apple =  new AppleFactory();
   apple.position.x = getRandomNumber((canvas.style.width  - apple.style.height));
@@ -151,6 +154,7 @@ function getSnake(canvas) {
     this.reload = function () {
       this.positionHistory = [];
       this.eat = 0;
+      this.randomPosition();
     };
   }
 
@@ -320,7 +324,6 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
           console.log('out');
           timer.stop();
           score.isPlaying = false;
-          snake.randomPosition();
           gpu.drawSnake();
           gpu.drawSnakeTail();
         } else {
@@ -446,9 +449,18 @@ window.addEventListener('load', function () {
   var button = document.getElementById('reload');
   button.addEventListener('click', function () {
     console.log('reload');
+    gpu.clearSnake();
+    gpu.clearSnakeTail();
+    gpu.clearApple();
+
     snake.reload();
+    apple.reload();
     score.reload();
     timer.reload();
+
+    gpu.drawSnake();
+    gpu.drawApple();
+
     keyboardManager.reload();
   });
 });

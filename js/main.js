@@ -304,6 +304,38 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
       this.bag = [];
     };
     this.builderSnakeMove = function (direction) {
+
+      /**
+       * Build a object compatible with  Collision.hasCollision
+       * @returns {{style: {width: number, height: number}}} the Object
+       */
+      function getTransformerTail() {
+        return {
+          style: {
+            width: snake.style.width,
+            height: snake.style.height
+          }
+        };
+      }
+
+      /**
+       * Detect if a object touch the tail of snake
+       * @param   {object}  obj - Obj can be anything, compatible with collision.hasCollision
+       * @returns {boolean}     - True if touch, False if not
+       */
+      function collisionWithTail(obj) {
+        var transformerTail = getTransformerTail();
+        var tail = snake.getTail();
+
+        for (var i = 1; i < tail.length; i++) {
+          transformerTail.position = tail[i];
+          if (collision.hasCollision(obj, transformerTail)) {
+            return true;
+          }
+        }
+        return false;
+      }
+
       return function () {
         gpu.clearSnake();
         gpu.clearSnakeTail();
@@ -319,28 +351,21 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
           score.printScore();
           gpu.clearApple();
           apple.newPosition();
+          // collision with head of snake
+          if (collision.hasCollision(snake, apple)) {
+            apple.newPosition();
+            console.log('snake toch apple');
+          }
           gpu.drawApple();
         }
 
         //snake se mort la queue
         if (snake.eat > 1) {
 
-          var transformerTail = {
-            style: {
-              width: snake.style.width,
-              height: snake.style.height
-            }
-          };
-
-          var tail = snake.getTail();
-
-          for (var i = 1; i < tail.length; i++) {
-            transformerTail.position = tail[i];
-            if (collision.hasCollision(snake, transformerTail)) {
-              console.log('touch');
-              score.isPlaying = false;
-              timer.stop();
-            };
+          if (collisionWithTail(snake)) {
+            score.isPlaying = false;
+            timer.stop();
+            console.log('touch');
           }
         }
 

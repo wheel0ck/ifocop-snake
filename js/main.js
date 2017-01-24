@@ -351,12 +351,12 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
           gpu.clearApple();
           apple.newPosition();
           // collision with head of snake
-          if (collision.hasCollision(snake, apple)) {
+          while (collision.hasCollision(snake, apple)) {
             console.log('snake head touch apple');
             apple.newPosition();
           }
           // collision with tail snake
-          if (collisionWithTail(apple)) {
+          while (collisionWithTail(apple)) {
             console.log('apple touch tail');
             apple.newPosition();
           }

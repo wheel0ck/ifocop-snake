@@ -326,7 +326,6 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
       function collisionWithTail(obj) {
         var transformerTail = getTransformerTail();
         var tail = snake.getTail();
-
         for (var i = 1; i < tail.length; i++) {
           transformerTail.position = tail[i];
           if (collision.hasCollision(obj, transformerTail)) {
@@ -353,25 +352,28 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
           apple.newPosition();
           // collision with head of snake
           if (collision.hasCollision(snake, apple)) {
+            console.log('snake head touch apple');
             apple.newPosition();
-            console.log('snake toch apple');
+          }
+          // collision with tail snake
+          if (collisionWithTail(apple)) {
+            console.log('apple touch tail');
+            apple.newPosition();
           }
           gpu.drawApple();
         }
 
-        //snake se mort la queue
+        // snake se mort la queue
         if (snake.eat > 1) {
-
           if (collisionWithTail(snake)) {
+            console.log('touch');
             score.isPlaying = false;
             timer.stop();
-            console.log('touch');
           }
         }
 
         if (!collision.inCanvas(snake, canvas)) {
           console.log('out');
-
           timer.stop();
           score.isPlaying = false;
           gpu.drawSnake();

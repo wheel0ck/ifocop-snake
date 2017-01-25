@@ -449,6 +449,7 @@ function getTimer(id) {
       clearInterval(this.idSetInterval);
     };
     this.reload = function () {
+      this.stop();
       this.isPlaying = true;
       this.second = this.params.defaultSecond;
       this.printTime();
@@ -498,21 +499,22 @@ window.addEventListener('load', function () {
 
   listenerKeyboard(keyboardManager);
 
-  var button = document.getElementById('reload');
-  button.addEventListener('click', function () {
-    console.log('reload');
-    gpu.clearSnake();
-    gpu.clearSnakeTail();
-    gpu.clearApple();
+  window.addEventListener('keydown', function (e) {
+    if (e.keyCode === 32) {
+      console.log('reload');
+      gpu.clearSnake();
+      gpu.clearSnakeTail();
+      gpu.clearApple();
 
-    snake.reload();
-    apple.reload();
-    score.reload();
-    timer.reload();
+      snake.reload();
+      apple.reload();
+      score.reload();
+      timer.reload();
 
-    gpu.drawSnake();
-    gpu.drawApple();
+      gpu.drawSnake();
+      gpu.drawApple();
 
-    keyboardManager.reload();
+      keyboardManager.reload();
+    }
   });
 });

@@ -429,8 +429,12 @@ function getTimer(id) {
     this.dom = (function () {
       return document.getElementById(id);
     })();
+    this.getTimeInPercentage = function () {
+      var percentage = ( this.second / this.params.defaultSecond) * 100;
+      return percentage.toFixed(2);
+    };
     this.printTime = function () {
-      this.dom.innerHTML = 'Timer = ' + this.second;
+      this.dom.style.width = this.getTimeInPercentage() + '%';
     };
     this.idSetInterval = Number();
     this.run = function () {

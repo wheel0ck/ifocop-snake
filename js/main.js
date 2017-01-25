@@ -406,7 +406,7 @@ function getScore(id) {
       return document.getElementById(id);
     })();
     this.printScore = function () {
-      this.dom.innerHTML = 'Score = ' + this.score;
+      this.dom.innerHTML = this.score;
     };
     this.reload = function () {
       this.score = 0;

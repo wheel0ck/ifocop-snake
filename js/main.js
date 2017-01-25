@@ -215,17 +215,23 @@ function getGpu(canvas, snake, apple) {
 }
 
 /**
- * Object used to manage keyboar and animation
+ * This object lunch the animation and start the timer
  * @param {AnimationManagerFactory}   [animationManager] - AnimationManager object
+ * @param {TimerFactory} [timer] - Timer object
  * @returns {KeyboardManagerFactory}  Returne a KeyboardManager object
  */
-function getKeyboardManager(animationManager) {
+function getKeyboardManager(animationManager, timer) {
   function KeyboardManagerFactory() {
     this.firstKeydown = true;
+    this.firstTimer = true;
     this.lastKeyCode = '';
     this.mapping = {37: 'left', 38: 'top', 39: 'right', 40: 'down'};
     this.setKeydown = function (keyCode) {
       if (this.mapping[keyCode]) {
+        if (this.firstTimer) {
+          timer.run();
+          this.firstTimer = false;
+        }
         if (this.lastKeyCode === '' && this.firstKeydown) {
           animationManager.run(this.mapping[keyCode]);
           this.lastKeyCode = keyCode;
@@ -241,6 +247,7 @@ function getKeyboardManager(animationManager) {
       animationManager.stop();
       this.lastKeyCode = '';
       this.firstKeydown = true;
+      this.firstTimer = true;
     };
   }
   return new KeyboardManagerFactory();
@@ -457,7 +464,6 @@ function getTimer(id) {
       this.isPlaying = true;
       this.second = this.params.defaultSecond;
       this.printTime();
-      this.run();
     };
   }
   return new TimerFactory();
@@ -482,7 +488,6 @@ window.addEventListener('load', function () {
   score.printScore();
   var timer = getTimer('timer');
   timer.printTime();
-  timer.run();
 
   var canvas = getCanvas('gamvas');
   // console.log(canvas);
@@ -498,7 +503,7 @@ window.addEventListener('load', function () {
 
   var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, score, timer);
   // console.log(gpu);
-  var keyboardManager = getKeyboardManager(animationManager);
+  var keyboardManager = getKeyboardManager(animationManager, timer);
   // console.log(command);
 
   listenerKeyboard(keyboardManager);

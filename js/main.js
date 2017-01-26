@@ -226,6 +226,13 @@ function getKeyboardManager(animationManager, timer) {
     this.firstTimer = true;
     this.lastKeyCode = '';
     this.mapping = {37: 'left', 38: 'top', 39: 'right', 40: 'down'};
+    this.canChangeDirection = function (keyCode) {
+      if (this.lastKeyCode === 37 && keyCode === 39 ) return false;
+      if (this.lastKeyCode === 39 && keyCode === 37 ) return false;
+      if (this.lastKeyCode === 38 && keyCode === 40 ) return false;
+      if (this.lastKeyCode === 40 && keyCode === 38 ) return false;
+      return true;
+    };
     this.setKeydown = function (keyCode) {
       if (this.mapping[keyCode]) {
         if (this.firstTimer) {
@@ -237,9 +244,11 @@ function getKeyboardManager(animationManager, timer) {
           this.lastKeyCode = keyCode;
           this.firstKeydown = false;
         } else {
-          animationManager.stop();
-          animationManager.run(this.mapping[keyCode]);
-          this.lastKeyCode = keyCode;
+          if (this.canChangeDirection(keyCode)) {
+            animationManager.stop();
+            animationManager.run(this.mapping[keyCode]);
+            this.lastKeyCode = keyCode;
+          }
         }
       }
     };

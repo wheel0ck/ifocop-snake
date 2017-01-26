@@ -40,7 +40,7 @@ function getApple(canvas) {
     this.style = {
       height: 10,
       width: 10,
-      color: 'green'
+      color: '#ea0b29'
     };
     this.position = {
       x: '',
@@ -116,7 +116,7 @@ function getSnake(canvas) {
     this.style = {
       height: 10,
       width: 10,
-      color: 'red'
+      color: '#2c2c2c'
     };
     this.position = {
       x: '',

@@ -1,0 +1,26 @@
+header {
+    background-color: #5f72aa
+}
+
+header h5 {
+    color: #2c2c2c
+}
+
+body {
+    color: #2c2c2c
+}
+
+#gamvas {
+    outline-color:#2c2c2c;
+    outline-style: solid;
+}
+
+#timerDiv {
+    outline-color:#2c2c2c;
+    outline-style: solid;
+    background-color: white;
+}
+
+#timer {
+    background-color: #5f72aa;
+}

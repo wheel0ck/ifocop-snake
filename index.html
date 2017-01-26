@@ -5,22 +5,18 @@
     <script src="js/main.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.0/css/foundation.min.css">
     <link rel="stylesheet" href="foundation-icons.css">
-    <style>
-        #gamvas{
-            background-color: darkgrey;
-        }
-    </style>
+    <link rel="stylesheet" href="main.css">
 </head>
 <body>
-<div class="callout secondary ">
-    <h5 class="text-center">This is a large callout</h5>
-</div>
+<header class="callout">
+    <h5 class="text-center">Project Solid Snake</h5>
+</header>
 
 <div class="row">
     <div class="small-5 small-centered columns">
         <div class="row">
                 <p id="score" class="stat text-center"></p>
-                <div class="success progress">
+                <div id="timerDiv" class="success progress">
                     <div id="timer" class="progress-meter" style="width: 100%"></div>
                 </div>
                 <canvas id="gamvas"  width="500" height="300"></canvas>

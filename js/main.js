@@ -419,22 +419,38 @@ function getCollisionEngin() {
 
 /**
  * Use to manage animation in terms of keyboard
- * @param {GpuFactory}                [gpu] - a gpu object
- * @param {SnakeFactory}              [snake] - a snake object
- * @param {CollisionFactory}          [collision] - a object to compute the collision
+ * @param {GpuFactory}               gpu - a gpu object
+ * @param {SnakeFactory}             snake - a snake object
+ * @param {CollisionFactory}         collision - a object to compute the collision
+ * @param {CanvasFactory}            canvas -  a canvas object
+ * @param {AppleFactory}             apple - a apple object
+ * @param {ScoreFactory}             score - a score object
+ * @param {TimerFactory}             timer - a timer object
  * @returns {AnimationManagerFactory} Return a AnimationManager
  */
 function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer) {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
     window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
-  var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+  let cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
   function AnimationManagerFactory() {
+    /**
+     * Stock the last id of animation frame
+     * @type {number}
+     */
     this.lastAnimationFrame = 0;
+    /**
+     * A array of functions
+     * @type {Array}
+     */
     this.bag = [];
-    this.catling = function () {
-      var animationManager = this;
+    /**
+     * Ratatatatatattaata
+     * @return {function} buildCatling - this function is used to loop in request animation frame
+     */
+    this.buildCatling = function () {
+      let animationManager = this;
       return function catling() {
         animationManager.bag.forEach(function (element) {
           element();
@@ -442,17 +458,30 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
         animationManager.lastAnimationFrame = window.requestAnimationFrame(catling);
       };
     };
+    /**
+     * The entry point of animation framme loop
+     * @param  {string} direction - left, right, go see keyboardManager.mapping
+     * @return {void}
+     */
     this.run = function (direction) {
-      var snakeMove = this.builderSnakeMove(direction);
+      let snakeMove = this.builderSnakeMove(direction);
       this.bag.push(snakeMove);
-      this.lastAnimationFrame = window.requestAnimationFrame(this.catling());
+      this.lastAnimationFrame = window.requestAnimationFrame(this.buildCatling());
     };
+    /**
+     * Stop the animation frame
+     * @return {void}
+     */
     this.stop = function () {
       cancelAnimationFrame(this.lastAnimationFrame);
       this.bag = [];
     };
+    /**
+     * Build a snake move object
+     * @param {string} direction  - check keyboardManager.mapping
+     * @return {Function} - a snake move object
+     */
     this.builderSnakeMove = function (direction) {
-
       /**
        * Build a object compatible with  Collision.hasCollision
        * @returns {{style: {width: number, height: number}}} the Object
@@ -465,7 +494,6 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
           }
         };
       }
-
       /**
        * Detect if a object touch the tail of snake
        * @param   {object}  obj - Obj can be anything, compatible with collision.hasCollision
@@ -483,6 +511,7 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
         return false;
       }
 
+      // the core of snake animation
       return function () {
         gpu.clearSnake();
         gpu.clearSnakeTail();
@@ -500,12 +529,10 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
           apple.newPosition();
           // collision with head of snake
           while (collision.hasCollision(snake, apple)) {
-            console.log('snake head touch apple');
             apple.newPosition();
           }
           // collision with tail snake
           while (collisionWithTail(apple)) {
-            console.log('apple touch tail');
             apple.newPosition();
           }
           gpu.drawApple();
@@ -514,14 +541,12 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
         // snake se mort la queue
         if (snake.eat > 1) {
           if (collisionWithTail(snake)) {
-            console.log('touch');
             score.isPlaying = false;
             timer.stop();
           }
         }
 
         if (!collision.inCanvas(snake, canvas)) {
-          console.log('out');
           timer.stop();
           score.isPlaying = false;
           gpu.drawSnake();

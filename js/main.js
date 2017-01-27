@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-disable func-names */
 
 /**
  * Get a object about the canvas html
@@ -63,7 +64,7 @@ function getApple(canvas) {
     };
     /**
      * Init a random position
-     * @type {{x: string, y: string}}
+     * @type {{x: number, y: number}}
      */
     this.position = {
       x: getRandomNumber((canvas.style.width  - this.style.height)),
@@ -292,9 +293,9 @@ function getGpu(canvas, snake, apple) {
      * @returns {void}
      */
     this.drawSnakeTail = function () {
-      var snakeTail = snake.getTail();
-      for (var i = 0; i < snakeTail.length; i++) {
-        var position = snakeTail[i];
+      let snakeTail = snake.getTail();
+      for (let i = 0; i < snakeTail.length; i++) {
+        let position = snakeTail[i];
         this.ctx.fillStyle = snake.style.color;
         this.ctx.fillRect(position.x, position.y, snake.style.width, snake.style.height);
       }
@@ -304,9 +305,9 @@ function getGpu(canvas, snake, apple) {
      * @returns {void}
      */
     this.clearSnakeTail = function () {
-      var snakeTail = snake.getTail();
-      for (var i = 0; i < snakeTail.length; i++) {
-        var position = snakeTail[i];
+      let snakeTail = snake.getTail();
+      for (let i = 0; i < snakeTail.length; i++) {
+        let position = snakeTail[i];
         this.ctx.clearRect(position.x, position.y, snake.style.width, snake.style.height);
       }
     };
@@ -500,9 +501,9 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
        * @returns {boolean}     - True if touch, False if not
        */
       function collisionWithTail(obj) {
-        var transformerTail = getTransformerTail();
-        var tail = snake.getTail();
-        for (var i = 1; i < tail.length; i++) {
+        let transformerTail = getTransformerTail();
+        let tail = snake.getTail();
+        for (let i = 1; i < tail.length; i++) {
           transformerTail.position = tail[i];
           if (collision.hasCollision(obj, transformerTail)) {
             return true;

@@ -71,6 +71,7 @@ function getApple(canvas) {
     };
     /**
      * Define a new random position of the apple
+     * @return {void}
      */
     this.newPosition = function () {
       this.position.x = getRandomNumber((canvas.style.width  - this.style.height));
@@ -78,6 +79,7 @@ function getApple(canvas) {
     };
     /**
      * Reload / reset the apple object
+     * @return {void}
      */
     this.reload =  function () {
       this.newPosition();
@@ -92,8 +94,8 @@ function getApple(canvas) {
  * @returns {SnakeFactory}  Return a snake object
  */
 function getSnake(canvas) {
-  var canvasXmax = canvas.style.width;
-  var canvasYmax = canvas.style.height;
+  let canvasXmax = canvas.style.width;
+  let canvasYmax = canvas.style.height;
 
   /**
    * Get a random position between two number
@@ -102,29 +104,29 @@ function getSnake(canvas) {
    * @returns {Number}              Return a integer
    */
   function getSnakePositionRandom(canvasSize, snakeSize) {
-    var max = canvasSize - snakeSize;
+    let max = canvasSize - snakeSize;
     return getRandomNumber(max);
   }
 
   /**
-   * Build a function for add px to the snake
+   * Build a dynamic function for add px to the snake
    * @param {number}      position - can be x or y coordonne
    * @returns {Function}  Return a function
    */
   function addPx(position) {
-    var snake = this;
+    let snake = this;
     return function () {
       snake.position[position] += snake.params.speed;
     };
   }
 
   /**
-   * Build a function for remove px to the snake
+   * Build a dynamic function for remove px to the snake
    * @param {number}      [position] - can be x or y coordonne
    * @returns {Function}  Return a function
    */
   function rmvPx(position) {
-    var snake = this;
+    let snake = this;
     return function () {
       snake.position[position] -= snake.params.speed;
     };
@@ -135,39 +137,85 @@ function getSnake(canvas) {
    * @constructor
    */
   function SnakeFactory() {
+    /**
+     * To config the snake
+     * @type {{speed: number}}
+     */
     this.params = {
       speed: 3
     };
+    /**
+     * Style of snake
+     * @type {{height: number, width: number, color: string}}
+     */
     this.style = {
       height: 10,
       width: 10,
       color: '#2c2c2c'
     };
+    /**
+     * Init position with a random value
+     * @type {{x: Number, y: Number}}
+     */
     this.position = {
-      x: '',
-      y: ''
+      x: getSnakePositionRandom(canvasXmax, this.style.width),
+      y: getSnakePositionRandom(canvasYmax, this.style.height)
     };
+    /**
+     * Records the position of the snake head
+     * @type {Array}
+     */
     this.positionHistory = [];
+    /**
+     * Number of times where he ate an apple
+     * @type {number}
+     */
     this.eat = 0;
+    /**
+     * Allows to change the position of the snake
+     * @type {{left: *, top: *, right: *, down: *}}
+     */
     this.move = {
-      left: '',
-      top: '',
-      right: '',
-      down: ''
+      left: rmvPx.call(this, 'x'),
+      top: rmvPx.call(this, 'y'),
+      right: addPx.call(this, 'x'),
+      down: addPx.call(this, 'y')
     };
+    /**
+     * Gives a random position to the snake
+     * @returns {void}
+     */
     this.randomPosition = function () {
-      this.position.x = getSnakePositionRandom(canvasXmax, snake.style.width);
-      this.position.y = getSnakePositionRandom(canvasYmax, snake.style.height);
+      this.position.x = getSnakePositionRandom(canvasXmax, this.style.width);
+      this.position.y = getSnakePositionRandom(canvasYmax, this.style.height);
     };
-    // @todo: (this.position) marche pas ?!
+    /**
+     * Saves the position of the snake.
+     * The last known position is recorded at the beginning of the array
+     * @param {number} x - x coordonnee
+     * @param {number} y - y coordonnee
+     * @returns {void}
+     */
     this.recordPosition = function (x, y) {
       this.positionHistory.unshift({x: x, y: y});
     };
+    /**
+     * Returns an array of tail
+     * @returns {Array} tail - Returns an array with the positions of the tail
+     */
     this.getTail = function () {
-      var tail = [];
-      var step = 4;
-      var j = step;
-      for (var i = 0; i < this.eat; i++) {
+      /**
+       * Stock each position of the tail
+       * @type {Array}
+       */
+      let tail = [];
+      /**
+       * Interval between two positions
+       * @type {number}
+       */
+      let step = 4;
+      let j = step;
+      for (let i = 0; i < this.eat; i++) {
         tail.push(this.positionHistory[j]);
         j += step;
       }
@@ -175,25 +223,24 @@ function getSnake(canvas) {
       this.positionHistory.splice(j);
       return tail;
     };
+    /**
+     * Set eat property
+     * @returns {void}
+     */
     this.setEat = function () {
       this.eat += 1;
     };
+    /**
+     * Reload the snake
+     * @returns {void}
+     */
     this.reload = function () {
       this.positionHistory = [];
       this.eat = 0;
       this.randomPosition();
     };
   }
-
-  var snake = new SnakeFactory();
-  snake.position.x = getSnakePositionRandom(canvasXmax, snake.style.width);
-  snake.position.y = getSnakePositionRandom(canvasYmax, snake.style.height);
-
-  snake.move.left = rmvPx.call(snake, 'x');
-  snake.move.top = rmvPx.call(snake, 'y');
-  snake.move.right = addPx.call(snake, 'x');
-  snake.move.down = addPx.call(snake, 'y');
-  return snake;
+  return new SnakeFactory();
 }
 
 /**

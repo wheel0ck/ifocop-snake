@@ -247,7 +247,7 @@ function getSnake(canvas) {
  *  Gpu object is used to draw in the canvas
  * @param {CanvasFactory} canvas - A Canvas object
  * @param {SnakeFactory}  snake - A Snake object
- * @param {SnakeFactory}  apple - A Apple object
+ * @param {AppleFactory}  apple - A Apple object
  * @returns {GpuFactory} Return a gpu object
  */
 function getGpu(canvas, snake, apple) {
@@ -674,33 +674,28 @@ function listenerKeyboard(keyboardManager) {
  * The beginning ...
  */
 window.addEventListener('load', function () {
-  var score = getScore('score');
+  let score = getScore('score');
   score.printScore();
-  var timer = getTimer('timer');
+
+  let timer = getTimer('timer');
   timer.printTime();
 
-  var canvas = getCanvas('gamvas');
-  // console.log(canvas);
-  var snake = getSnake(canvas);
-  var apple = getApple(canvas);
-  // console.log(snake);
-  var gpu = getGpu(canvas, snake, apple);
+  let canvas = getCanvas('gamvas');
+  let snake = getSnake(canvas);
+  let apple = getApple(canvas);
+  let gpu = getGpu(canvas, snake, apple);
   gpu.drawSnake();
   gpu.drawApple();
 
-  var collision = getCollisionEngin();
-  // console.log(collision);
+  let collision = getCollisionEngin();
+  let animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, score, timer);
 
-  var animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, score, timer);
-  // console.log(gpu);
-  var keyboardManager = getKeyboardManager(animationManager, timer);
-  // console.log(command);
+  let keyboardManager = getKeyboardManager(animationManager, timer);
 
   listenerKeyboard(keyboardManager);
 
   window.addEventListener('keydown', function (e) {
     if (e.keyCode === 32) {
-      console.log('reload');
       gpu.clearSnake();
       gpu.clearSnakeTail();
       gpu.clearApple();

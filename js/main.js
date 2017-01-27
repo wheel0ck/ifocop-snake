@@ -245,28 +245,52 @@ function getSnake(canvas) {
 
 /**
  *  Gpu object is used to draw in the canvas
- * @param {CanvasFactory} [canvas] - A Canvas object
- * @param {SnakeFactory}  [snake] - A Snake object
- * @param {SnakeFactory}  [apple] - A Apple object
+ * @param {CanvasFactory} canvas - A Canvas object
+ * @param {SnakeFactory}  snake - A Snake object
+ * @param {SnakeFactory}  apple - A Apple object
  * @returns {GpuFactory} Return a gpu object
  */
 function getGpu(canvas, snake, apple) {
   function GpuFactory() {
+    /**
+     * Store the context
+     * @type {*}
+     */
     this.ctx = canvas.ctx;
+    /**
+     * Draws the snake
+     * @returns {void}
+     */
     this.drawSnake = function () {
       this.ctx.fillStyle = snake.style.color;
       this.ctx.fillRect(snake.position.x, snake.position.y, snake.style.width, snake.style.height);
     };
+    /**
+     * Clear the snake
+     * @returns {void}
+     */
     this.clearSnake = function () {
       this.ctx.clearRect(snake.position.x, snake.position.y, snake.style.width, snake.style.height);
     };
+    /**
+     * Draws a apple
+     * @returns {void}
+     */
     this.drawApple = function () {
       this.ctx.fillStyle = apple.style.color;
       this.ctx.fillRect(apple.position.x, apple.position.y, apple.style.width, apple.style.height);
     };
+    /**
+     * Clear the apple
+     * @returns {void}
+     */
     this.clearApple = function () {
       this.ctx.clearRect(apple.position.x, apple.position.y, apple.style.width, apple.style.height);
     };
+    /**
+     * Draws the tails of snake
+     * @returns {void}
+     */
     this.drawSnakeTail = function () {
       var snakeTail = snake.getTail();
       for (var i = 0; i < snakeTail.length; i++) {
@@ -275,6 +299,10 @@ function getGpu(canvas, snake, apple) {
         this.ctx.fillRect(position.x, position.y, snake.style.width, snake.style.height);
       }
     };
+    /**
+     * Clear the tails of snake
+     * @returns {void}
+     */
     this.clearSnakeTail = function () {
       var snakeTail = snake.getTail();
       for (var i = 0; i < snakeTail.length; i++) {

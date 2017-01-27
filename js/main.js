@@ -380,8 +380,18 @@ function getKeyboardManager(animationManager, timer) {
   return new KeyboardManagerFactory();
 }
 
+/**
+ * Collision Engine
+ * @return {CollisionFactory} - return a collision object
+ */
 function getCollisionEngin() {
   function CollisionFactory() {
+    /**
+     * Test if there are a collision
+     * @param {*} rect1  - a object with position x and y
+     * @param {*} rect2  - a object with position x and y
+     * @return {boolean} - collision or not that the question
+     */
     this.hasCollision = function (rect1, rect2) {
       if (rect1.position.x < rect2.position.x + rect2.style.width && rect1.position.x + rect1.style.width > rect2.position.x &&
         rect1.position.y < rect2.position.y + rect2.style.height && rect1.style.height + rect1.position.y > rect2.position.y) {
@@ -390,16 +400,20 @@ function getCollisionEngin() {
       return false;
     };
 
+    /**
+     * Check if a object (snake) is in the canvas
+     * @param {*} snake - a object with position x and y
+     * @param  {*} canvas - a object with position x and y
+     * @return {boolean} - true or false
+     */
     this.inCanvas = function (snake, canvas) {
       if (snake.position.x > canvas.position.x && snake.position.x + snake.style.width < canvas.style.width
       && snake.position.y > canvas.position.y && snake.position.y + snake.style.height < canvas.style.height) {
-
         return true;
       }
       return false;
     };
   }
-
   return new CollisionFactory();
 }
 

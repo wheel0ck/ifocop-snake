@@ -605,14 +605,27 @@ function getTimer(id) {
     this.dom = (function () {
       return document.getElementById(id);
     })();
+    /**
+     * Converts seconds to percent for tag
+     * @return {string} return a number
+     */
     this.getTimeInPercentage = function () {
-      var percentage = ( this.second / this.params.defaultSecond) * 100;
+      let percentage = ( this.second / this.params.defaultSecond) * 100;
       return percentage.toFixed(2);
     };
+    /**
+     * Print time in the progress bar tag
+     * @return {void}
+     */
     this.printTime = function () {
       this.dom.style.width = this.getTimeInPercentage() + '%';
     };
     this.idSetInterval = Number();
+    /**
+     * Run the timer
+     * recursive function: call every second himself
+     * @return {void}
+     */
     this.run = function () {
       this.idSetInterval = setInterval(function (timer) {
         timer.second -= 1;
@@ -625,9 +638,17 @@ function getTimer(id) {
         }
       }, 1000, this);
     };
+    /**
+     * Stop the timer
+     * @return {void}
+     */
     this.stop = function () {
       clearInterval(this.idSetInterval);
     };
+    /**
+     * Reset the object
+     * @return {void}
+     */
     this.reload = function () {
       this.stop();
       this.isPlaying = true;

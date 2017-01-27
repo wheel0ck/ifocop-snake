@@ -315,17 +315,27 @@ function getGpu(canvas, snake, apple) {
 }
 
 /**
- * This object lunch the animation and start the timer
- * @param {AnimationManagerFactory}   [animationManager] - AnimationManager object
- * @param {TimerFactory} [timer] - Timer object
- * @returns {KeyboardManagerFactory}  Returne a KeyboardManager object
+ * This object manage interactio with keyboard
+ * @param {AnimationManagerFactory}   animationManager - AnimationManager object
+ * @param {TimerFactory}              timer - Timer object
+ * @returns {KeyboardManagerFactory}  Return a KeyboardManager object
  */
 function getKeyboardManager(animationManager, timer) {
   function KeyboardManagerFactory() {
     this.firstKeydown = true;
     this.firstTimer = true;
     this.lastKeyCode = '';
+    /**
+     * Mapping keycode with direction
+     * @type {{37: string, 38: string, 39: string, 40: string}}
+     * @returns {void}
+     */
     this.mapping = {37: 'left', 38: 'top', 39: 'right', 40: 'down'};
+    /**
+     * Check if the snake can go in the opposite direction
+     * @param {number} keyCode - a keycode
+     * @returns {boolean} return true or false
+     */
     this.canChangeDirection = function (keyCode) {
       if (this.lastKeyCode === 37 && keyCode === 39 ) return false;
       if (this.lastKeyCode === 39 && keyCode === 37 ) return false;
@@ -333,6 +343,11 @@ function getKeyboardManager(animationManager, timer) {
       if (this.lastKeyCode === 40 && keyCode === 38 ) return false;
       return true;
     };
+    /**
+     * Check keydown event
+     * @param {number} keyCode - a keycode
+     * @returns {void}
+     */
     this.setKeydown = function (keyCode) {
       if (this.mapping[keyCode]) {
         if (this.firstTimer) {
@@ -343,15 +358,18 @@ function getKeyboardManager(animationManager, timer) {
           animationManager.run(this.mapping[keyCode]);
           this.lastKeyCode = keyCode;
           this.firstKeydown = false;
-        } else {
-          if (this.canChangeDirection(keyCode)) {
-            animationManager.stop();
-            animationManager.run(this.mapping[keyCode]);
-            this.lastKeyCode = keyCode;
-          }
+        }
+        if (this.canChangeDirection(keyCode)) {
+          animationManager.stop();
+          animationManager.run(this.mapping[keyCode]);
+          this.lastKeyCode = keyCode;
         }
       }
     };
+    /**
+     * Relod the object and stop the animation
+     * @returns {void}
+     */
     this.reload = function () {
       animationManager.stop();
       this.lastKeyCode = '';

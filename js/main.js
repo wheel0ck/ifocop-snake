@@ -2,20 +2,30 @@
 
 /**
  * Get a object about the canvas html
- * @param {string} id - The id of the canvas element
+ * @param {string}          id - The id of the canvas element
  * @returns {CanvasFactory} Return canvas object
  */
 function getCanvas(id) {
   function CanvasFactory() {
+    /**
+     * Collects the size and width of the canvas
+     * @type {{height: string, width: string}}
+     */
     this.style = {
       height: document.getElementById(id).getAttribute('height'),
       width: document.getElementById(id).getAttribute('width')
     };
+    /**
+     * The default position of the canvas
+     * @type {{x: number, y: number}}
+     */
     this.position = {
       x: 0,
       y: 0
     };
-
+    /**
+     * @return {(CanvasRenderingContext2D)} Return a 2d context
+     */
     this.ctx = (function () {
       let element = document.getElementById('gamvas');
       return element.getContext('2d');

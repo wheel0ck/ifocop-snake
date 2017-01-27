@@ -562,7 +562,7 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
 }
 /**
  * Give a game object
- * @param {string} [id]   Add the id of the html tag
+ * @param {string} id - the css id of the score tag
  * @returns {ScoreFactory} Return a object game
  */
 function getScore(id) {
@@ -575,6 +575,9 @@ function getScore(id) {
         this.score = this.score + this.step;
       }
     };
+    /**
+     * function anonyme: get score tag html
+     */
     this.dom = (function () {
       return document.getElementById(id);
     })();

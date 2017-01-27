@@ -41,34 +41,49 @@ function getCanvas(id) {
  * @returns {Number} integer  Return a integer
  */
 function getRandomNumber(max, min = 0) {
-  var num = Math.random() * (max - min);
+  let num = Math.random() * (max - min);
   return parseInt(num, 10);
 }
 
+/**
+ * Return a Apple object
+ * @param {CanvasFactory}  canvas A canvas factory object
+ * @return {AppleFactory} Return a apple object
+ */
 function getApple(canvas) {
   function AppleFactory() {
+    /**
+     * Define the style of the apple
+     * @type {{height: number, width: number, color: string}}
+     */
     this.style = {
       height: 10,
       width: 10,
       color: '#ea0b29'
     };
+    /**
+     * Init a random position
+     * @type {{x: string, y: string}}
+     */
     this.position = {
-      x: '',
-      y: ''
+      x: getRandomNumber((canvas.style.width  - this.style.height)),
+      y: getRandomNumber((canvas.style.height - this.style.width))
     };
+    /**
+     * Define a new random position of the apple
+     */
     this.newPosition = function () {
       this.position.x = getRandomNumber((canvas.style.width  - this.style.height));
       this.position.y = getRandomNumber((canvas.style.height - this.style.width));
     };
+    /**
+     * Reload / reset the apple object
+     */
     this.reload =  function () {
       this.newPosition();
     };
   }
-  var apple =  new AppleFactory();
-  apple.position.x = getRandomNumber((canvas.style.width  - apple.style.height));
-  apple.position.y = getRandomNumber((canvas.style.height - apple.style.width));
-  // @todo: newPosition()
-  return apple;
+  return new AppleFactory();
 }
 
 /**
@@ -93,7 +108,7 @@ function getSnake(canvas) {
 
   /**
    * Build a function for add px to the snake
-   * @param {number}      [position] - can be x or y coordonne
+   * @param {number}      position - can be x or y coordonne
    * @returns {Function}  Return a function
    */
   function addPx(position) {

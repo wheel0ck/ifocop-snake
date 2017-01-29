@@ -439,7 +439,7 @@ function getScore(id) {
  */
 function getTimer(id) {
   function TimerFactory() {
-    this.params = { defaultSecond: 60};
+    this.params = { defaultSecond: 120};
     this.second = this.params.defaultSecond;
     this.isPlaying = true;
     this.dom = (function () {

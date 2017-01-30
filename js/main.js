@@ -217,10 +217,14 @@ function getSnake(canvas) {
       let step = 4;
       let j = step;
       for (let i = 0; i < this.eat; i++) {
-        tail.push(this.positionHistory[j]);
+        // When apple pop just in front of the head of sneake, positionHistory need more recording
+        // eslint-disable-next-line no-undefined
+        if (this.positionHistory[j] !== undefined) {
+          tail.push(this.positionHistory[j]);
+        }
         j += step;
       }
-      // clean history
+      // clean history with old position
       this.positionHistory.splice(j);
       return tail;
     };

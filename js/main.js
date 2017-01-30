@@ -685,10 +685,14 @@ window.addEventListener('load', function () {
   let snake = getSnake(canvas);
   let apple = getApple(canvas);
   let gpu = getGpu(canvas, snake, apple);
+  let collision = getCollisionEngin();
+
   gpu.drawSnake();
+  while (collision.hasCollision(snake, apple)) {
+    apple.newPosition();
+  }
   gpu.drawApple();
 
-  let collision = getCollisionEngin();
   let animationManager = getAnimationManager(gpu, snake, collision, canvas, apple, score, timer);
 
   let keyboardManager = getKeyboardManager(animationManager, timer);
@@ -705,6 +709,9 @@ window.addEventListener('load', function () {
       apple.reload();
       score.reload();
       timer.reload();
+      while (collision.hasCollision(snake, apple)) {
+        apple.newPosition();
+      }
 
       gpu.drawSnake();
       gpu.drawApple();

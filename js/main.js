@@ -516,6 +516,24 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
         return false;
       }
 
+      /**
+       * Detect if a object touch the position history of snake.
+       * It s used when i need to pop the apple, don t use collisionWithTail because the history is cutted
+       * @param {object} obj - Obj can be anything, compatible with collision.hasCollision
+       * @returns {boolean} - True if touch, False if not
+       */
+      function collisionWithSnakePositionHistory(obj) {
+        let transformerTail = getTransformerTail();
+        let tail = snake.positionHistory;
+        for (let i = 1; i < tail.length; i++) {
+          transformerTail.position = tail[i];
+          if (collision.hasCollision(obj, transformerTail)) {
+            return true;
+          }
+        }
+        return false;
+      }
+
       // the core of snake animation
       return function () {
         gpu.clearSnake();
@@ -537,7 +555,7 @@ function getAnimationManager(gpu, snake, collision, canvas, apple, score, timer)
             apple.newPosition();
           }
           // collision with tail snake
-          while (collisionWithTail(apple)) {
+          while (collisionWithSnakePositionHistory(apple)) {
             apple.newPosition();
           }
           gpu.drawApple();

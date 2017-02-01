@@ -1,4 +1,5 @@
-![screenshot snake](https://ergot.github.io/ifocop-snake/img/fullSnake.png =1200x500)
+![screenshot snake](https://ergot.github.io/ifocop-snake/img/snake800.png)
+=======
 Bienvenue !
 ===================
 Dans le cadre de ma formation fullstack js,je doit coder un projet front uniquement en javascript.

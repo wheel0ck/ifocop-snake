@@ -13,4 +13,4 @@ Le jeux est héberger par GitHub Page à cette [adresse](https://ergot.github.io
 Au sujet de la stack technique, je vous redirige vers le [stackshare](https://stackshare.io/ergot/ifocop-snake) du projet. 
 
 ### Workflow
-J'utilise GitLab pour mes développements et je mets en prod sur GitHub Page, qui est plus performante.
+J'utilise GitLab pour mes développements et je mets en prod sur GitHub Page, qui est plus performant.

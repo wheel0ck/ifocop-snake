@@ -1,4 +1,4 @@
-![screenshot snake](https://ergot.github.io/ifocop-snake/img/snake800.png)
+![screenshot snake](https://ergot.github.io/ifocop-snake/img/snake800300.png)
 =======
 Bienvenue !
 ===================
